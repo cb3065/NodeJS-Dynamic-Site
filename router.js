@@ -1,6 +1,7 @@
 // Require the "router.js" file
 var Profile = require("./profile.js");
 var renderer = require("./renderer.js");
+var querystring = require("querystring");
 
 var commonHeaders = { "Content-Type": "text/html" };
 
@@ -8,15 +9,26 @@ var commonHeaders = { "Content-Type": "text/html" };
 function home(req, res) {
 	// if url == "/" && GET
 	if(req.url === "/") {
-		// show search
-		res.writeHead(200, commonHeaders);
-		renderer.view("header", {}, res);
-		renderer.view("search", {}, res);
-		renderer.view("footer", {}, res);
-		res.end();
+		if(req.method.toLowerCase() === "get") {
+			// show search
+			res.writeHead(200, commonHeaders);
+			renderer.view("header", {}, res);
+			renderer.view("search", {}, res);
+			renderer.view("footer", {}, res);
+			res.end();
+		} else {
+			// if url == "/" && POST
+			
+			// get the post data from body
+			req.on("data", function(postBody) {
+				// extract username
+				var query = querystring.parse(postBody.toString());
+				// redirect to /:username
+				res.writeHead(303, {"Location": "/" + query.username });
+				res.end();
+			});			
+		}
 	}
-	// if url == "/" && POST
-		// redirect to /:username
 }
 
 
